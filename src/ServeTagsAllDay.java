@@ -10,13 +10,21 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import plc.plc;
+import plc.parseconfig;
 
 
 public class ServeTagsAllDay{
+	parseconfig parser;
+	
 	public static void main(String[] args){
+		
+		ServeTagsAllDay tagserver = new ServeTagsAllDay();
+		
 		int lpnum = 12897;
 		String line;
 		String retval;
+		
 		
 		long start;
 		long end;
@@ -24,12 +32,19 @@ public class ServeTagsAllDay{
 		try{
 			//create listening socket
 			ServerSocket tserver = new ServerSocket(lpnum);
-			String[] userargs = {"-jucs","cip://2:192.168.56.10/1:4","-gtiServerPort", "4000"};
-			String[] SGargs = {"-jucs","cip://2:192.168.56.222/1:0","-gtiServerPort", "4001"};
-			String[] GRIDargs = {"-jucs","cip://2:192.168.56.102/1:2","-gtiServerPort","4002"};
-			Wrapper SG = new Wrapper(SGargs);
-			Wrapper user = new Wrapper(userargs);
-			Wrapper GRID = new Wrapper(GRIDargs);
+			//String[] userargs = {"-jucs","cip://2:192.168.56.10/1:4","-gtiServerPort", "4000"};
+			//String[] SGargs = {"-jucs","cip://2:192.168.56.222/1:0","-gtiServerPort", "4001"};
+			//String[] GRIDargs = {"-jucs","cip://2:192.168.56.102/1:2","-gtiServerPort","4002"};
+			//Wrapper SG = new Wrapper(SGargs);
+			//Wrapper user = new Wrapper(userargs);
+			//Wrapper GRID = new Wrapper(GRIDargs);
+			
+			//read configuration file to load plc parameters
+			tagserver.parser.readconfigs();
+			
+			//make connections to plcs
+			tagserver.parser.makeWrappers();
+			
 			System.out.println("Should be connected");
 
 			while(true){
@@ -41,7 +56,9 @@ public class ServeTagsAllDay{
 					
 					line = reqstream.readLine();
 					
-					retval = processInput(SG,user,GRID,line);
+					//retval = processInput(SG,user,GRID,line);
+					retval = tagserver.processInput(line);
+					
 					end = System.currentTimeMillis();
 					System.out.printf("\nresponse in %s ms :",end - start);
 					outstream.println(retval);					
@@ -58,8 +75,13 @@ public class ServeTagsAllDay{
 			System.out.println(E);
 		}
 	}
+	
+	public ServeTagsAllDay()
+	{
+		this.parser = new parseconfig();
+	}
 
-	public static String processInput(Wrapper SG, Wrapper user, Wrapper GRID, String req){
+	public String processInput(String req){
 		try{
 			String[] items = req.split(" ");
 			String method = items[0];
@@ -67,22 +89,26 @@ public class ServeTagsAllDay{
 			
 			String retval;
 			
-			if(plc.equals("SG")){
-				retval = processMore(SG,method,items);
-				return retval;
-			}
-			else if(plc.equals("user")){
-				retval = processMore(user,method,items);
-				return retval;
-			}
-			else if(plc.equals("GRID")){
-				retval = processMore(GRID,method,items);
-				return retval;
-			}
-			else{
-				System.out.println("invalid PLC type");
-				return null;
-			}
+			Wrapper plcwrapper = parser.getplcbyname(plc).getWrapper();
+			
+//			if(plc.equals("SG")){
+//				retval = processMore(SG,method,items);
+//				return retval;
+//			}
+//			else if(plc.equals("user")){
+//				retval = processMore(user,method,items);
+//				return retval;
+//			}
+//			else if(plc.equals("GRID")){
+//				retval = processMore(GRID,method,items);
+//				return retval;
+//			}
+//			else{
+//				System.out.println("invalid PLC type");
+//				return null;
+//			}
+			
+			retval = processMore(plcwrapper,method,items);
 		}
 		catch(Exception e){
 			System.out.println(e);
