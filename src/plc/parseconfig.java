@@ -178,8 +178,8 @@ public class parseconfig{
 			while ((line = reader.readLine()) != null)
 			{
 				line = line.trim();
-				System.out.print(line);
-				System.out.print("\n");
+				//System.out.print(line);
+				//System.out.print("\n");
 				
 				if(state == 0)
 				{
@@ -199,7 +199,7 @@ public class parseconfig{
 						throw new Exception("unexpected beginning of new inverter");
 					}
 					
-					System.out.println("looking for attributes");
+					//System.out.println("looking for attributes");
 					
 					String[] attvalpairs = line.split(",");
 					for(int i = 0; i < attvalpairs.length; i++)
@@ -312,8 +312,10 @@ public class parseconfig{
 	
 	public void makeWrappers()
 	{
+		System.out.println("Connecting to PLCs...");
 		for(int i = 0; i < plclist.size(); i ++)
 		{
+			System.out.printf("\nconnecting to %s on %s...", plclist.get(i).identifier, plclist.get(i).port);
 			plclist.get(i).makeWrapper();
 		}
 	}

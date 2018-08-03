@@ -45,7 +45,7 @@ public class ServeTagsAllDay{
 			//make connections to plcs
 			tagserver.parser.makeWrappers();
 			
-			System.out.println("Should be connected");
+			System.out.println("ok, ready to serve tags now");
 
 			while(true){
 				try{
@@ -109,6 +109,7 @@ public class ServeTagsAllDay{
 //			}
 			
 			retval = processMore(plcwrapper,method,items);
+			return retval;
 		}
 		catch(Exception e){
 			System.out.println(e);
@@ -161,13 +162,13 @@ public class ServeTagsAllDay{
 			if(nameArray.length == 1){
 				//String[] parts = items[2].split(":");
 				w.writeTag(nameArray[0], valueArray[0]);  //commented for testing
-				System.out.println(nameArray[0].toString());
-				System.out.println(valueArray[0].toString());
+				//System.out.println(nameArray[0].toString());
+				//System.out.println(valueArray[0].toString());
 			}
 			else if(nameArray.length > 1){
 				w.writeTags(nameArray, valueArray); //commented for testing
-				System.out.println(nameArray.toString());
-				System.out.println(valueArray.toString());
+				//System.out.println(nameArray.toString());
+				//System.out.println(valueArray.toString());
 			}
 			else{
 				return null;
@@ -195,7 +196,7 @@ public class ServeTagsAllDay{
 			if(nameArray.length == 1){
 				Object retval = w.readTag(items[2]); 
 				String output = String.format("%s:%s\n", items[2] ,retval.toString());
-				System.out.println(output);
+				System.out.printf("received: %s",output);
 				return output;
 			}
 			else if(nameArray.length > 1){

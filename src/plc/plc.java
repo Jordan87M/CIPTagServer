@@ -7,6 +7,7 @@ public class plc{
 	String ipaddr;
 	String slot;
 	String port;
+	
 	Wrapper wrapper;
 	
 	public static void main(String[] args)
@@ -28,13 +29,14 @@ public class plc{
 	
 	public String[] getargs()
 	{
-		String[] args = {"-jucs", String.format("cip://2:%s/1:%s", this.ipaddr,slot), "-gtiServerPort", port};
+		String args[] = {"-jucs", String.format("cip://2:%s/1:%s", this.ipaddr,slot), "-gtiServerPort", port};
 		return args;
 	}
 	
 	public Wrapper makeWrapper()
 	{
-		wrapper = new Wrapper(getargs());
+		String[] args = getargs();
+		wrapper = new Wrapper(args);
 		return wrapper;
 	}
 	
