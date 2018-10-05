@@ -388,10 +388,10 @@ public class DCMGmodel{
 		this.src6 = new Generator(10.0,12.0,4.0);
 		
 		
-		this.src1loc = 4;
-		this.src2loc = 1;
-		this.src3loc = 4;
-		this.src4loc = 3;
+		this.src1loc = 4;	//supposed to be br1b1 (Crunderson)
+		this.src2loc = 1;   //supposed to be main  (Enercon)
+		this.src3loc = 4;	//supposed to be br1b1 (Robeski)
+		this.src4loc = 3;	//supposed to be br2b1 (Enercon)
 		this.src5loc = 4;
 		this.src6loc = 1;
 		
@@ -467,8 +467,10 @@ public class DCMGmodel{
 		//size matrix based on number of sources connected
 		dim = 23 + SOURCE_1_User + SOURCE_2_User + SOURCE_3_User + SOURCE_4_User + SOURCE_5_User + SOURCE_6_User;
 		double[][] Y = new double[dim][dim];
+		double[][] Yd = new double[dim][dim];
 		double[] U = new double[dim];
 		double[] K = new double[dim];
+		double[] Kd = new double[dim];
 		
 		double[] gencurrents = new double[6];
 		double[] busvoltages = new double[23];
@@ -687,9 +689,19 @@ public class DCMGmodel{
 			Modelmath.printmat(Y);
 		}
 		
+//***********************************************************************************
+		//solve for the vector of unknowns		
 		
-		//solve for the vector of unknowns
-		U = Modelmath.gausselim(Y,K);
+		for(int i = 0; i<dim; i++)
+			for(int j = 0; j<dim; j++)
+				Yd[i][j] = Y[i][j];
+		
+		U = Modelmath.gausselim(Yd,K);
+//***********************************************************************************
+		if(debugging){
+			Modelmath.printmat(Y);
+		}
+		
 		//decompose vector
 		for(int i = 0;i<U.length;i++){
 			if(i<23){
@@ -746,6 +758,10 @@ public class DCMGmodel{
 		b1b2l1c = -(b1b2v-b1b2l1v)*Y[8][20];
 		b1b2l2c = -(b1b2v-b1b2l2v)*Y[8][21];
 		b1b2l3c = -(b1b2v-b1b2l3v)*Y[8][22];
+		
+		//System.out.printf("Crosstie 1 admittance: %f    crosstie 1 current: %f", Y[5][6], ic1c);
+		//System.out.printf("Crosstie 2 admittance: %f    crosstie 2 current: %f", Y[9][10], ic2c);
+		
 		//source currents
 		if(SOURCE_1_User == 1){
 			if(SOURCE_1_BATTERY_CHARGE_SELECT == 1){
