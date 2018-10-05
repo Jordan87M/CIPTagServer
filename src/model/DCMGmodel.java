@@ -173,6 +173,9 @@ public class DCMGmodel{
 	int CROSSTIE_2_Fault_2;
 	int MAIN_BUS_Fault;
 	
+	double SolarSetpoint1Alias;
+	double SolarSetpoint2Alias;
+	
 	double mbv;
 	double b2b1v;
 	double b1b1v;
@@ -429,6 +432,9 @@ public class DCMGmodel{
 		this.CROSSTIE_2_Fault_1 = 0;
 		this.CROSSTIE_2_Fault_2 = 0;
 		this.MAIN_BUS_Fault = 0;
+		
+		this.SolarSetpoint1Alias = 10.0;
+		this.SolarSetpoint2Alias = 10.0;
 		
 		//print signal names for csv log file
 		try{
@@ -912,7 +918,7 @@ public class DCMGmodel{
 		//System.out.println(String.format("regc: %f",src3regc));
 		
 		//write to log
-		this.log.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n",
+		this.log.println(String.format("%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s",
 				String.valueOf(busvoltages[1]),String.valueOf(busvoltages[2]),String.valueOf(busvoltages[3]),String.valueOf(busvoltages[4]),String.valueOf(busvoltages[5]),String.valueOf(busvoltages[6]),
 				String.valueOf(busvoltages[7]),String.valueOf(busvoltages[8]),String.valueOf(busvoltages[9]),
 				String.valueOf(busvoltages[10]),String.valueOf(busvoltages[11]),String.valueOf(busvoltages[12]),String.valueOf(busvoltages[13]),String.valueOf(busvoltages[14]),
@@ -977,10 +983,11 @@ public class DCMGmodel{
 		}
 	}
 	
-	public Object[] fakeinterface(String mode, String[] tags, Object[] values){
+	public Object[] fakeinterface(String plc, String mode, String[] tags, Object[] values){
 		Object[] retval = new Object[tags.length];
-		if(mode.equals("read")){
-				for(int i = 0;i<tags.length;i++){
+			if(plc.equals("user")){
+				if(mode.equals("read")){
+					for(int i = 0;i<tags.length;i++){
 						if(tags[i].equals("BRANCH_1_BUS_1_LOAD_1_Current")){
 								retval[i] = new Float(b1b1l1c);
 						}
@@ -1320,236 +1327,314 @@ public class DCMGmodel{
 						else if(tags[i].equals("SOURCE_6_DROOP_SELECT")){
 							retval[i] = int2bool(SOURCE_6_DROOP_SELECT);
 						}
-						else if(tags[i].equals("SolarSetpoint1Alias")){
-							retval[i] = new Float(10.0);
+						else{
+							System.out.println(String.format("tag %s does not exist",tags[i]));
+							retval = null;
 						}
-						else if(tags[i].equals("SolarSetpoint1Alias")){
-							retval[i] = new Float(10.0);
+					} //for loop
+					
+				} // read mode
+				else if(mode.equals("write")){
+					for(int i = 0;i<tags.length;i++){
+						if(tags[i].equals("BRANCH_1_BUS_1_LOAD_1_User")){
+							BRANCH_1_BUS_1_LOAD_1_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_1_LOAD_2_User")){
+							BRANCH_1_BUS_1_LOAD_2_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_1_LOAD_3_User")){
+							BRANCH_1_BUS_1_LOAD_3_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_LOAD_1_User")){
+							BRANCH_2_BUS_1_LOAD_1_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_LOAD_2_User")){
+							BRANCH_2_BUS_1_LOAD_2_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_LOAD_3_User")){
+							BRANCH_2_BUS_1_LOAD_3_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_LOAD_1_User")){
+							BRANCH_1_BUS_2_LOAD_1_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_LOAD_2_User")){
+							BRANCH_1_BUS_2_LOAD_2_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_LOAD_3_User")){
+							BRANCH_1_BUS_2_LOAD_3_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_LOAD_1_User")){
+							BRANCH_2_BUS_2_LOAD_1_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_LOAD_2_User")){
+							BRANCH_2_BUS_2_LOAD_2_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_LOAD_3_User")){
+							BRANCH_2_BUS_2_LOAD_3_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_PROXIMAL_User")){
+							BRANCH_2_BUS_2_PROXIMAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_PROXIMAL_User")){
+							BRANCH_1_BUS_2_PROXIMAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_PROXIMAL_User")){
+							BRANCH_2_BUS_1_PROXIMAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_1_PROXIMAL_User")){
+							BRANCH_1_BUS_1_PROXIMAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_DISTAL_User")){
+							BRANCH_2_BUS_2_DISTAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_DISTAL_User")){
+							BRANCH_1_BUS_2_DISTAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_DISTAL_User")){
+							BRANCH_2_BUS_1_DISTAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_1_DISTAL_User")){
+							BRANCH_1_BUS_1_DISTAL_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("CROSSTIE_1_User")){
+							CROSSTIE_1_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("CROSSTIE_2_User")){
+							CROSSTIE_2_User = invbool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_User")){
+							SOURCE_1_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_User")){
+							SOURCE_2_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_User")){
+							SOURCE_3_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_User")){
+							SOURCE_4_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_User")){
+							SOURCE_5_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_User")){
+							SOURCE_6_User = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_droopCoeff")){
+							SOURCE_1_droopCoeff = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_droopCoeff")){
+							SOURCE_2_droopCoeff = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_droopCoeff")){
+							SOURCE_3_droopCoeff = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_droopCoeff")){
+							SOURCE_4_droopCoeff = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_droopCoeff")){
+							SOURCE_5_droopCoeff = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_droopCoeff")){
+							SOURCE_6_droopCoeff = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_noLoadVoltage")){
+							SOURCE_1_noLoadVoltage = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_noLoadVoltage")){
+							SOURCE_2_noLoadVoltage = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_noLoadVoltage")){
+							SOURCE_3_noLoadVoltage = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_noLoadVoltage")){
+							SOURCE_4_noLoadVoltage = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_noLoadVoltage")){
+							SOURCE_5_noLoadVoltage = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_noLoadVoltage")){
+							SOURCE_6_noLoadVoltage = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_noLoadVoltage")){
+							SOURCE_1_noLoadVoltage = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_noLoadVoltage")){
+							SOURCE_2_noLoadVoltage = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_noLoadVoltage")){
+							SOURCE_3_noLoadVoltage = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_noLoadVoltage")){
+							SOURCE_4_noLoadVoltage = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_noLoadVoltage")){
+							SOURCE_5_noLoadVoltage = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_noLoadVoltage")){
+							SOURCE_6_noLoadVoltage = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_BatteryReqCharge")){
+							SOURCE_1_BatteryReqCharge = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_BatteryReqCharge")){
+							SOURCE_2_BatteryReqCharge = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_BatteryReqCharge")){
+							SOURCE_3_BatteryReqCharge = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_BatteryReqCharge")){
+							SOURCE_4_BatteryReqCharge = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_BatteryReqCharge")){
+							SOURCE_5_BatteryReqCharge = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_BatteryReqCharge")){
+							SOURCE_6_BatteryReqCharge = bool2int(values[i]);
+						}				
+						else if(tags[i].equals("SOURCE_1_BatteryReqStop")){
+							SOURCE_1_BatteryReqStop = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_BatteryReqStop")){
+							SOURCE_2_BatteryReqStop = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_BatteryReqStop")){
+							SOURCE_3_BatteryReqStop = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_BatteryReqStop")){
+							SOURCE_4_BatteryReqStop = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_BatteryReqStop")){
+							SOURCE_5_BatteryReqStop = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_BatteryReqStop")){
+							SOURCE_6_BatteryReqStop = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_BATTERY_CHARGE_SELECT")){
+							SOURCE_1_BATTERY_CHARGE_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_BATTERY_CHARGE_SELECT")){
+							SOURCE_2_BATTERY_CHARGE_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_BATTERY_CHARGE_SELECT")){
+							SOURCE_3_BATTERY_CHARGE_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_BATTERY_CHARGE_SELECT")){
+							SOURCE_4_BATTERY_CHARGE_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_BATTERY_CHARGE_SELECT")){
+							SOURCE_5_BATTERY_CHARGE_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_BATTERY_CHARGE_SELECT")){
+							SOURCE_6_BATTERY_CHARGE_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_1_DROOP_SELECT")){
+							SOURCE_1_DROOP_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_2_DROOP_SELECT")){
+							SOURCE_2_DROOP_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_3_DROOP_SELECT")){
+							SOURCE_3_DROOP_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_4_DROOP_SELECT")){
+							SOURCE_4_DROOP_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_5_DROOP_SELECT")){
+							SOURCE_5_DROOP_SELECT = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SOURCE_6_DROOP_SELECT")){
+							SOURCE_6_DROOP_SELECT = bool2int(values[i]);
 						}
 						else{
 							System.out.println(String.format("tag %s does not exist",tags[i]));
 							retval = null;
 						}
-				}
-		}
-		else if(mode.equals("write")){
-			for(int i = 0;i<tags.length;i++){
-				if(tags[i].equals("BRANCH_1_BUS_1_LOAD_1_User")){
-					BRANCH_1_BUS_1_LOAD_1_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_1_LOAD_2_User")){
-					BRANCH_1_BUS_1_LOAD_2_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_1_LOAD_3_User")){
-					BRANCH_1_BUS_1_LOAD_3_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_1_LOAD_1_User")){
-					BRANCH_2_BUS_1_LOAD_1_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_1_LOAD_2_User")){
-					BRANCH_2_BUS_1_LOAD_2_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_1_LOAD_3_User")){
-					BRANCH_2_BUS_1_LOAD_3_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_2_LOAD_1_User")){
-					BRANCH_1_BUS_2_LOAD_1_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_2_LOAD_2_User")){
-					BRANCH_1_BUS_2_LOAD_2_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_2_LOAD_3_User")){
-					BRANCH_1_BUS_2_LOAD_3_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_2_LOAD_1_User")){
-					BRANCH_2_BUS_2_LOAD_1_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_2_LOAD_2_User")){
-					BRANCH_2_BUS_2_LOAD_2_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_2_LOAD_3_User")){
-					BRANCH_2_BUS_2_LOAD_3_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_2_PROXIMAL_User")){
-					BRANCH_2_BUS_2_PROXIMAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_2_PROXIMAL_User")){
-					BRANCH_1_BUS_2_PROXIMAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_1_PROXIMAL_User")){
-					BRANCH_2_BUS_1_PROXIMAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_1_PROXIMAL_User")){
-					BRANCH_1_BUS_1_PROXIMAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_2_DISTAL_User")){
-					BRANCH_2_BUS_2_DISTAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_2_DISTAL_User")){
-					BRANCH_1_BUS_2_DISTAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_2_BUS_1_DISTAL_User")){
-					BRANCH_2_BUS_1_DISTAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("BRANCH_1_BUS_1_DISTAL_User")){
-					BRANCH_1_BUS_1_DISTAL_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("CROSSTIE_1_User")){
-					CROSSTIE_1_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("CROSSTIE_2_User")){
-					CROSSTIE_2_User = invbool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_User")){
-					SOURCE_1_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_User")){
-					SOURCE_2_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_User")){
-					SOURCE_3_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_User")){
-					SOURCE_4_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_User")){
-					SOURCE_5_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_User")){
-					SOURCE_6_User = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_droopCoeff")){
-					SOURCE_1_droopCoeff = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_droopCoeff")){
-					SOURCE_2_droopCoeff = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_droopCoeff")){
-					SOURCE_3_droopCoeff = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_droopCoeff")){
-					SOURCE_4_droopCoeff = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_droopCoeff")){
-					SOURCE_5_droopCoeff = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_droopCoeff")){
-					SOURCE_6_droopCoeff = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_noLoadVoltage")){
-					SOURCE_1_noLoadVoltage = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_noLoadVoltage")){
-					SOURCE_2_noLoadVoltage = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_noLoadVoltage")){
-					SOURCE_3_noLoadVoltage = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_noLoadVoltage")){
-					SOURCE_4_noLoadVoltage = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_noLoadVoltage")){
-					SOURCE_5_noLoadVoltage = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_noLoadVoltage")){
-					SOURCE_6_noLoadVoltage = obj2double(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_noLoadVoltage")){
-					SOURCE_1_noLoadVoltage = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_noLoadVoltage")){
-					SOURCE_2_noLoadVoltage = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_noLoadVoltage")){
-					SOURCE_3_noLoadVoltage = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_noLoadVoltage")){
-					SOURCE_4_noLoadVoltage = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_noLoadVoltage")){
-					SOURCE_5_noLoadVoltage = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_noLoadVoltage")){
-					SOURCE_6_noLoadVoltage = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_BatteryReqCharge")){
-					SOURCE_1_BatteryReqCharge = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_BatteryReqCharge")){
-					SOURCE_2_BatteryReqCharge = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_BatteryReqCharge")){
-					SOURCE_3_BatteryReqCharge = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_BatteryReqCharge")){
-					SOURCE_4_BatteryReqCharge = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_BatteryReqCharge")){
-					SOURCE_5_BatteryReqCharge = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_BatteryReqCharge")){
-					SOURCE_6_BatteryReqCharge = bool2int(values[i]);
-				}				
-				else if(tags[i].equals("SOURCE_1_BatteryReqStop")){
-					SOURCE_1_BatteryReqStop = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_BatteryReqStop")){
-					SOURCE_2_BatteryReqStop = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_BatteryReqStop")){
-					SOURCE_3_BatteryReqStop = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_BatteryReqStop")){
-					SOURCE_4_BatteryReqStop = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_BatteryReqStop")){
-					SOURCE_5_BatteryReqStop = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_BatteryReqStop")){
-					SOURCE_6_BatteryReqStop = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_BATTERY_CHARGE_SELECT")){
-					SOURCE_1_BATTERY_CHARGE_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_BATTERY_CHARGE_SELECT")){
-					SOURCE_2_BATTERY_CHARGE_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_BATTERY_CHARGE_SELECT")){
-					SOURCE_3_BATTERY_CHARGE_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_BATTERY_CHARGE_SELECT")){
-					SOURCE_4_BATTERY_CHARGE_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_BATTERY_CHARGE_SELECT")){
-					SOURCE_5_BATTERY_CHARGE_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_BATTERY_CHARGE_SELECT")){
-					SOURCE_6_BATTERY_CHARGE_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_1_DROOP_SELECT")){
-					SOURCE_1_DROOP_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_2_DROOP_SELECT")){
-					SOURCE_2_DROOP_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_3_DROOP_SELECT")){
-					SOURCE_3_DROOP_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_4_DROOP_SELECT")){
-					SOURCE_4_DROOP_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_5_DROOP_SELECT")){
-					SOURCE_5_DROOP_SELECT = bool2int(values[i]);
-				}
-				else if(tags[i].equals("SOURCE_6_DROOP_SELECT")){
-					SOURCE_6_DROOP_SELECT = bool2int(values[i]);
-				}
-				else{
-					System.out.println(String.format("tag %s does not exist",tags[i]));
-					retval = null;
-				}
+					} //for loop
+				} // write mode
+						
+			} // user plc
+			else if(plc.equals("SG")){
+				if (mode.equals("read")){
+					for(int i = 0;i<tags.length;i++){
+						if(tags[i].equals("BRANCH_1_BUS_1_FAULT")){
+							retval[i] = int2bool(BRANCH_1_BUS_1_Fault);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_FAULT")){
+							retval[i] = int2bool(BRANCH_1_BUS_2_Fault);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_FAULT")){
+							retval[i] = int2bool(BRANCH_2_BUS_1_Fault);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_FAULT")){
+							retval[i] = int2bool(BRANCH_2_BUS_2_Fault);
+						}
+						else if(tags[i].equals("CROSSTIE_1_FAULT_1")){
+							retval[i] = int2bool(CROSSTIE_1_Fault_1);
+						}
+						else if(tags[i].equals("CROSSTIE_1_FAULT_2")){
+							retval[i] = int2bool(CROSSTIE_1_Fault_2);
+						}
+						else if(tags[i].equals("CROSSTIE_2_FAULT_1")){
+							retval[i] = int2bool(CROSSTIE_2_Fault_1);
+						}
+						else if(tags[i].equals("CROSSTIE_2_FAULT_2")){
+							retval[i] = int2bool(CROSSTIE_2_Fault_2);
+						}
+						else if(tags[i].equals("MAIN_BUS_FAULT")){
+							retval[i] = int2bool(MAIN_BUS_Fault);
+						}
+						else if(tags[i].equals("SolarSetpoint1Alias")){
+							retval[i] = new Float(SolarSetpoint1Alias);
+						}
+						else if(tags[i].equals("SolarSetpoint2Alias")){
+							retval[i] = new Float(SolarSetpoint2Alias);
+						}
+					}
+				}
+				else if(mode.equals("write")){
+					for(int i = 0;i<tags.length;i++){
+						if(tags[i].equals("BRANCH_1_BUS_1_FAULT")){
+							BRANCH_1_BUS_1_Fault = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_1_BUS_2_FAULT")){
+							BRANCH_1_BUS_2_Fault = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_1_FAULT")){
+							BRANCH_2_BUS_1_Fault = bool2int(values[i]);
+						}
+						else if(tags[i].equals("BRANCH_2_BUS_2_FAULT")){
+							BRANCH_2_BUS_2_Fault = bool2int(values[i]);
+						}
+						else if(tags[i].equals("CROSSTIE_1_FAULT_1")){
+							CROSSTIE_1_Fault_1 = bool2int(values[i]);
+						}
+						else if(tags[i].equals("CROSSTIE_1_FAULT_2")){
+							CROSSTIE_1_Fault_2 = bool2int(values[i]);
+						}
+						else if(tags[i].equals("CROSSTIE_2_FAULT_1")){
+							CROSSTIE_2_Fault_1 = bool2int(values[i]);
+						}
+						else if(tags[i].equals("CROSSTIE_2_FAULT_2")){
+							CROSSTIE_2_Fault_2 = bool2int(values[i]);
+						}
+						else if(tags[i].equals("MAIN_BUS_FAULT")){
+							MAIN_BUS_Fault = bool2int(values[i]);
+						}
+						else if(tags[i].equals("SolarSetpoint1Alias")){
+							SolarSetpoint1Alias = obj2double(values[i]);
+						}
+						else if(tags[i].equals("SolarSetpoint2Alias")){
+							SolarSetpoint2Alias = obj2double(values[i]);
+						}
+
+					
+					}
+
+				}
+				
+				
 			}
-		}
 		if(retval != null){
 			System.out.println("fake interface returns the following:");
 			for(int i = 0;i<retval.length;i++){
