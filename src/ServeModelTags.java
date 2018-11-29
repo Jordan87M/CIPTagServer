@@ -15,15 +15,13 @@ import java.io.File;
 
 //import java.io.InputStreamReader;
 import model.DCMGmodel;
+import model.ModelRunner;
 
 public class ServeModelTags{
 	public static void main(String[] args){
 		int lpnum = 12897;
-		long prev = System.currentTimeMillis();
 		long now = 0;
-		long modelet = 0;
-		long modelinterval = 20;
-		long itrcounter = 0;
+		int modelinterval = 20;
 		long recbytes;
 		String line;
 		String retval;
@@ -41,6 +39,8 @@ public class ServeModelTags{
 		
 		PrintWriter reqlog = null;
 		
+		Thread modelthread = null;
+		
 		try{
 			//create log file
 			reqlog = new PrintWriter(new FileOutputStream(new File(reqlogfname),false));
@@ -48,26 +48,19 @@ public class ServeModelTags{
 			//create listening socket
 			ServerSocketChannel tserver = ServerSocketChannel.open();
 			tserver.socket().bind(new InetSocketAddress(lpnum));
-			tserver.configureBlocking(false);
+			tserver.configureBlocking(true);
 			
+			System.out.println("Launching model thread");
+			modelthread = new ModelRunner(dcmg, modelinterval);
+			modelthread.start();
 			
 			System.out.println("Should be connected");
 			try{
 				while(true){
-					try{
-	
-						SocketChannel tclient = tserver.accept();
+					try{	
+						SocketChannel tclient = tserver.accept();						
+						//now = System.currentTimeMillis();
 						
-						
-						now = System.currentTimeMillis();
-						modelet = now - prev;
-						if(modelet > modelinterval){
-							//System.out.println(now);
-							dcmg.solvemodel(false);
-							prev = System.currentTimeMillis();
-							itrcounter++;
-							//System.out.println(itrcounter);
-						}
 						if(tclient != null){
 							recbuff.position(0);
 							recbuff.limit(8192);
@@ -95,7 +88,7 @@ public class ServeModelTags{
 								//System.out.println("return value is null");
 							}
 	
-							System.out.println("closing client socket");
+							//System.out.println("closing client socket");
 							tclient.close();
 						}
 					}
@@ -281,7 +274,10 @@ public class ServeModelTags{
 		//System.out.println("readModelTags(); called");
 		Object[] results = new Object[tags.length];
 		Object[] dummyvals = new Object[1];
-		results = dcmg.fakeinterface(plc, "read",tags,dummyvals);
+		
+		synchronized(dcmg){
+			results = dcmg.fakeinterface(plc, "read",tags,dummyvals);
+		}		
 		
 		return results;
 	}
@@ -292,8 +288,12 @@ public class ServeModelTags{
 		Object[] dummyvals = new Object[1];
 		String[] tags = new String[1];
 		tags[0] = tag;
-		Object[] results = dcmg.fakeinterface(plc, "read", tags, dummyvals);
-		result = results[0];
+		
+		synchronized(dcmg){
+			Object[] results = dcmg.fakeinterface(plc, "read", tags, dummyvals);
+			result = results[0];
+		}
+				
 		//System.out.println(result);
 		return result;		
 	}
@@ -304,13 +304,20 @@ public class ServeModelTags{
 		String[] tags = new String[1];
 		values[0] = value;
 		tags[0] = tag;
-		dcmg.fakeinterface(plc, "write", tags, values);
+		
+		synchronized(dcmg){
+			dcmg.fakeinterface(plc, "write", tags, values);
+		}		
+		
 		//System.out.println("writeModelTag() returning");
 	}
 	
 	public static void writeModelTags(DCMGmodel dcmg, String plc, String[] tags, Object[] values){
 		//System.out.println("writeModelTags() called");
-		dcmg.fakeinterface(plc, "write", tags, values);
+		synchronized(dcmg){
+			dcmg.fakeinterface(plc, "write", tags, values);
+		}
+		
 		//System.out.println("writeModelTags() returning");
 	}
 	

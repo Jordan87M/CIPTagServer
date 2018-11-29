@@ -322,7 +322,7 @@ public class DCMGmodel{
 		this.CROSSTIE_1_User = 0;
 		this.CROSSTIE_2_User = 0;
 
-		this.SOURCE_1_User = 1;
+		this.SOURCE_1_User = 0;
 		this.SOURCE_2_User = 0;
 		this.SOURCE_3_User = 0;
 		this.SOURCE_4_User = 0;
