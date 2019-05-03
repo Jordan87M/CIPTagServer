@@ -47,7 +47,7 @@ public class ServeModelTags{
 			
 			//create listening socket
 			ServerSocketChannel tserver = ServerSocketChannel.open();
-			tserver.socket().bind(new InetSocketAddress(lpnum));
+			tserver.socket().bind(new InetSocketAddress("localhost",lpnum));
 			tserver.configureBlocking(true);
 			
 			System.out.println("Launching model thread");
@@ -59,7 +59,8 @@ public class ServeModelTags{
 				while(true){
 					try{	
 						SocketChannel tclient = tserver.accept();						
-						//now = System.currentTimeMillis();
+						now = System.currentTimeMillis();
+						//System.out.println(now);
 						
 						if(tclient != null){
 							recbuff.position(0);
@@ -68,7 +69,7 @@ public class ServeModelTags{
 							recbuff.flip();
 							line = decoder.decode(recbuff).toString();
 							
-							reqlog.printf("\nFROM %s, RECEIVED NEW MESSAGE: %s\n   AT %d",tclient.socket().getRemoteSocketAddress(), line, System.currentTimeMillis()/1000);
+							reqlog.printf("\nFROM %s, RECEIVED NEW MESSAGE: %s\n   AT %d",tclient.socket().getRemoteSocketAddress(), line, System.currentTimeMillis());
 							
 							System.out.println(String.format("line: %s", line));
 							//System.out.println(recbytes);
@@ -79,7 +80,7 @@ public class ServeModelTags{
 							
 							if(retval != null){
 								System.out.println(retval);
-								reqlog.printf("\nRESPONSE: %s\n     AT %d", retval, System.currentTimeMillis()/1000);
+								reqlog.printf("\nRESPONSE: %s\n     AT %d", retval, System.currentTimeMillis());
 								tclient.write(ByteBuffer.wrap(retval.getBytes()));
 							}
 							else{
